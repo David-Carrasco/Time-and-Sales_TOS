@@ -1,0 +1,53 @@
+# Libraries
+
+```{r}
+library(xts)
+```
+
+Loading the dataframe with the time and sales option data
+
+```{r}
+DATASET.PATH <- 'Example_Option Time_and_sales ASHR 24082915.csv'
+dataset <- read.csv(DATASET.PATH, header = FALSE, stringsAsFactors = FALSE, sep = ';')
+dataset <- dataset[,-c(1,11)]
+colnames(dataset) <- c('Time', 'Option', 'Quantity', 'Price', 'Exchange', 'Bid_X_Ask', 'Delta', 'Implied_Volatility', 'Underlying')
+```
+
+The Option column must be splitted up since we have to distinguish the calls and puts options
+
+```{r}
+dataset$Type <- substr(dataset$Option, nchar(dataset$Option), nchar(dataset$Option))
+dataset$Type <- ifelse(dataset$Type == 'C' , 'CALL', 'PUT')
+
+dataset$Option <- substr(dataset$Option, 1, nchar(dataset$Option)-2)
+```
+
+Split up the Bid and ask in two columns
+
+```{r}
+split.bid.ask <- as.data.frame(do.call(rbind, sapply(dataset$Bid_X_Ask, USE.NAMES = FALSE, function(bid_ask){strsplit(bid_ask, 'x')})))
+colnames(split.bid.ask) <- c('Bid', 'Ask')
+
+dataset <- cbind(dataset, split.bid.ask)
+dataset$Bid_X_Ask <- NULL
+```
+
+Convert the Time variable in a xts type
+
+```{r}
+
+```
+
+Change the types of the columns accordingly
+
+```{r}
+
+```
+
+# TODO - Change the order of the columns by importance
+# Time, Option, Type, Quantity, Price, Bid, Ask, Implied_Volatility, Delta, Underlying, Exchange
+
+
+
+
+
