@@ -2,15 +2,23 @@
 
 ```{r}
 library(xts)
+library(stringr)
 ```
 
-Loading the dataframe with the time and sales option data
+# Constants
 
 ```{r}
 DATASET.PATH <- 'Example_Option Time_and_sales ASHR 24082915.csv'
+today <- as.Date('24-8-2015', format = '%d-%m-%Y')
+```
+
+## Loading the dataframe with the time and sales option data
+
+```{r}
+
 dataset <- read.csv(DATASET.PATH, header = FALSE, stringsAsFactors = FALSE, sep = ';')
 dataset <- dataset[,-c(1,11)]
-colnames(dataset) <- c('Time', 'Option', 'Quantity', 'Price', 'Exchange', 'Bid_X_Ask', 'Delta', 'Implied_Volatility', 'Underlying')
+colnames(dataset) <- c('Time', 'Option', 'Quantity', 'Price', 'Exchange', 'Bid_X_Ask', 'Delta', 'Implied_Volatility_per_cent', 'Underlying')
 ```
 
 The Option column must be splitted up since we have to distinguish the calls and puts options
@@ -29,25 +37,54 @@ split.bid.ask <- as.data.frame(do.call(rbind, sapply(dataset$Bid_X_Ask, USE.NAME
 colnames(split.bid.ask) <- c('Bid', 'Ask')
 
 dataset <- cbind(dataset, split.bid.ask)
+dataset$Bid <- as.numeric(as.character(dataset$Bid))
+dataset$Ask <- as.numeric(as.character(dataset$Ask))
+
 dataset$Bid_X_Ask <- NULL
+```
+
+Removing the '%' in the values of the IV column
+```{r}
+dataset$Implied_Volatility_per_cent <- sub('%', '', dataset$Implied_Volatility_per_cent)
+dataset[dataset$Implied_Volatility_per_cent == '--', c('Implied_Volatility_per_cent')] <- NA
+dataset$Implied_Volatility_per_cent <- as.numeric(dataset$Implied_Volatility_per_cent)
+```
+
+## Change the types of the columns accordingly
+
+Convert numeric types
+
+```{r}
+#Convert commas in points in the number before changing the type of the Quantity column
+dataset$Quantity <- sapply(dataset$Quantity, function(element){
+  ifelse(grepl(',', element), sub('[[:punct:]]', '', element), element)})
+
+dataset$Quantity <- as.integer(dataset$Quantity)
 ```
 
 Convert the Time variable in a xts type
 
 ```{r}
-
+test <- xts(dataset$Time)
 ```
 
-Change the types of the columns accordingly
+
+
+
+
+Change the order of the columns
 
 ```{r}
-
+dataset <- dataset[,c('Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
+                      'Implied_Volatility_per_cent', 'Delta', 'Underlying', 'Exchange')]
 ```
 
-# TODO - Change the order of the columns by importance
-# Time, Option, Type, Quantity, Price, Bid, Ask, Implied_Volatility, Delta, Underlying, Exchange
 
 
 
 
+
+
+# TODO - Plot (dygraph) the timeseries (x axis) with the quantity of options (y axis)
+#        divided by calls and puts hitting the ask and bid
 
