@@ -3,6 +3,7 @@
 ```{r}
 library(xts)
 library(stringr)
+library(dygraphs)
 ```
 
 # Constants
@@ -76,12 +77,6 @@ Change the order of the columns
 dataset <- dataset[,c('Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
                       'Implied_Volatility_per_cent', 'Delta', 'Underlying', 'Exchange')]
 ```
-
-
-
-
-
-
 
 # TODO - Plot (dygraph) the timeseries (x axis) with the quantity of options (y axis)
 #        divided by calls and puts hitting the ask and bid
