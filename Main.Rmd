@@ -65,12 +65,10 @@ dataset$Quantity <- as.integer(dataset$Quantity)
 Convert the Time variable in a xts type
 
 ```{r}
-test <- xts(dataset$Time)
+dataset$Time <- paste(today, dataset$Time, sep = ' ')
+dataset <- xts(dataset, unique = FALSE, order.by = as.POSIXct(dataset$Time))
+dataset$Time <- NULL
 ```
-
-
-
-
 
 Change the order of the columns
 
