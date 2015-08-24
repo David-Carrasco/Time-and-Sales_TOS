@@ -10,7 +10,7 @@ library(dygraphs)
 
 ```{r}
 DATASET.PATH <- 'Example_Option Time_and_sales ASHR 24082915.csv'
-today <- as.Date('24-8-2015', format = '%d-%m-%Y')
+TODAY <- as.Date('24-8-2015', format = '%d-%m-%Y')
 ```
 
 ## Loading the dataframe with the time and sales option data
@@ -66,7 +66,7 @@ dataset$Quantity <- as.integer(dataset$Quantity)
 Convert the Time variable in a xts type
 
 ```{r}
-dataset$Time <- paste(today, dataset$Time, sep = ' ')
+dataset$Time <- paste(TODAY, dataset$Time, sep = ' ')
 dataset <- xts(dataset, unique = FALSE, order.by = as.POSIXct(dataset$Time))
 dataset$Time <- NULL
 ```
@@ -78,6 +78,21 @@ dataset <- dataset[,c('Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
                       'Implied_Volatility_per_cent', 'Delta', 'Underlying', 'Exchange')]
 ```
 
+```{r}
+head(dataset)
+```
+
 # TODO - Plot (dygraph) the timeseries (x axis) with the quantity of options (y axis)
 #        divided by calls and puts hitting the ask and bid
+
+# Insights
+
+Examples with dygraphs
+
+## The biggest option trade 
+
+```{r}
+dygraph(dataset[,c('Quantity')])
+```
+
 
