@@ -10,6 +10,8 @@ library(dygraphs)
 
 ```{r}
 DATASET.PATH <- 'Example_Option Time_and_sales ASHR 24082915.csv'
+NAME <- 'ASHR'
+
 TODAY <- as.Date('24-8-2015', format = '%d-%m-%Y')
 ```
 
@@ -17,7 +19,7 @@ TODAY <- as.Date('24-8-2015', format = '%d-%m-%Y')
 
 ```{r}
 
-dataset <- read.csv(DATASET.PATH, header = FALSE, stringsAsFactors = FALSE, sep = ';')
+dataset <- read.csv(DATASET.PATH, header = FALSE, stringsAsFactors = FALSE, sep = '\t')
 dataset <- dataset[,-c(1,11)]
 colnames(dataset) <- c('Time', 'Option', 'Quantity', 'Price', 'Exchange', 'Bid_X_Ask', 'Delta', 'Implied_Volatility_per_cent', 'Underlying')
 ```
@@ -67,14 +69,13 @@ Convert the Time variable in a xts type
 
 ```{r}
 dataset$Time <- paste(TODAY, dataset$Time, sep = ' ')
-dataset <- xts(dataset, unique = FALSE, order.by = as.POSIXct(dataset$Time))
-dataset$Time <- NULL
+#dataset$Time <- NULL
 ```
 
 Change the order of the columns
 
 ```{r}
-dataset <- dataset[,c('Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
+dataset <- dataset[,c('Time', 'Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
                       'Implied_Volatility_per_cent', 'Delta', 'Underlying', 'Exchange')]
 ```
 
@@ -82,17 +83,24 @@ dataset <- dataset[,c('Option', 'Type', 'Quantity', 'Price', 'Bid', 'Ask',
 head(dataset)
 ```
 
-# TODO - Plot (dygraph) the timeseries (x axis) with the quantity of options (y axis)
-#        divided by calls and puts hitting the ask and bid
-
 # Insights
 
 Examples with dygraphs
 
-## The biggest option trade 
+## Distribution of trades by Quantity 
 
-```{r}
-dygraph(dataset[,c('Quantity')])
+```{r fig.width=10}
+chart.quantity <- xts(dataset, unique = FALSE, order.by = as.POSIXct(dataset$Time))
+dygraph(chart.quantity[,c('Quantity')], main = paste(NAME, TODAY, sep = ' '))
 ```
 
+## Top 20 biggest trades 
 
+```{r fig.width=10}
+chart.top.quantity <- dataset[order(-dataset$Quantity),][1:20,]
+chart.top.quantity <- xts(chart.top.quantity, unique = FALSE, 
+                          order.by = as.POSIXct(chart.top.quantity$Time))
+dygraph(chart.top.quantity[,c('Quantity')], main = paste(NAME, TODAY, sep = ' '))
+```
+
+TODO - Assign buys and sales when the bid or ask is hit.
